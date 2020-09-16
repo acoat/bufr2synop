@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2013-2017 by Guillermo Ballester Valor                  *
+ *   Copyright (C) 2013-2018 by Guillermo Ballester Valor                  *
  *   gbv@ogimet.com                                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -102,7 +102,10 @@ int sprint_sec1_info ( char *target, size_t lmax, struct bufrdeco *b )
   c += sprintf ( c, "Hour:                  %5u\n", b->sec1.hour );
   c += sprintf ( c, "Minute:                %5u\n", b->sec1.minute );
   c += sprintf ( c, "Second:                %5u\n", b->sec1.second );
-  c += sprintf ( c, "Aditional space:       %5u\n", b->sec1.length - 22 );
+  if (b->sec0.edition == 3)
+    c += sprintf ( c, "Aditional space:       %5u\n", b->sec1.length - 17 );
+  else    
+    c += sprintf ( c, "Aditional space:       %5u\n", b->sec1.length - 22 );
   if ( b->tables->b.path[0] )
     {
       c += sprintf ( c, "Tables used: '%s'\n", b->tables->b.path );
@@ -136,7 +139,7 @@ void print_sec1_info ( struct bufrdeco *b )
 int sprint_sec3_info ( char *target, size_t lmax, struct bufrdeco *b )
 {
   size_t i;
-  char caux[4096], *c;
+  char caux[8192], *c;
 
   if ( b->mask & BUFRDECO_OUTPUT_HTML )
     return sprint_sec3_info_html ( target, lmax, b );
@@ -165,9 +168,9 @@ int sprint_sec3_info ( char *target, size_t lmax, struct bufrdeco *b )
 */
 void print_sec3_info ( struct bufrdeco *b )
 {
-  char caux[4096];
+  char caux[8192];
   caux[0] = 0;
-  sprint_sec3_info ( caux, 4096, b );
+  sprint_sec3_info ( caux, 8192, b );
   printf ( "%s", caux );
 }
 
@@ -181,7 +184,7 @@ void print_sec3_info ( struct bufrdeco *b )
 */
 int sprint_sec4_info ( char *target, size_t lmax, struct bufrdeco *b )
 {
-  char caux[4096], *c;
+  char caux[8192], *c;
 
   if ( b->mask & BUFRDECO_OUTPUT_HTML )
     return sprint_sec4_info_html ( target, lmax, b );
@@ -200,9 +203,9 @@ int sprint_sec4_info ( char *target, size_t lmax, struct bufrdeco *b )
 */
 void print_sec4_info ( struct bufrdeco *b )
 {
-  char caux[256];
+  char caux[8192];
   caux[0] = 0;
-  sprint_sec4_info ( caux, 256, b );
+  sprint_sec4_info ( caux, 8192, b );
   printf ( "%s", caux );
 }
 
@@ -418,6 +421,15 @@ char * bufrdeco_print_atom_data ( char *target, struct bufr_atom_data *a )
       climit += 64;
     }
 
+  if (a->is_bitmaped_by != 0)
+      c += sprintf(c, " *IS BITMAPED BY #%u*", a->is_bitmaped_by);
+
+  if (a->bitmap_to != 0)
+      c += sprintf(c, " *BITMAP TO #%u*", a->bitmap_to);
+
+  if (a->related_to != 0)
+      c += sprintf(c, " *RELATED TO #%u*", a->related_to);
+
   return target;
 }
 
@@ -462,7 +474,7 @@ void fprint_bufrdeco_compressed_ref ( FILE *f, struct bufrdeco_compressed_ref *r
   if ( r->cref0[0] == '\0' )
     {
       fprintf ( f, "bits=%2u, ref=%10d, escale=%3d,",  r->bits, r->ref, r->escale );
-      fprintf ( f, "ref0=%10u, inc_bits=%2u ", r->ref0, r->inc_bits );
+      fprintf ( f, " bit0=%10lu, ref0=%10u, inc_bits=%2u ", r->bit0, r->ref0, r->inc_bits );
       fprintf ( f, "%s %s\n",r->name, r->unit );
     }
   else

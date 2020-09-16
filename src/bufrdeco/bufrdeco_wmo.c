@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2013-2017 by Guillermo Ballester Valor                  *
+ *   Copyright (C) 2013-2020 by Guillermo Ballester Valor                  *
  *   gbv@ogimet.com                                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -46,7 +46,7 @@ const char DEFAULT_BUFRTABLES_WMO_CSV_DIR2[] = "/usr/share/bufr2synop/";
 int get_wmo_tablenames ( struct bufrdeco *b )
 {
   struct stat st;
-  char aux[256];
+  char aux[128];
 
   if ( b->bufrtables_dir[0] == '\0' )
     {
@@ -119,14 +119,21 @@ int get_wmo_tablenames ( struct bufrdeco *b )
     case 25:
     case 26:
     case 27:
+    case 28:
+    case 29:
+    case 30:
+    case 31:
+    case 32:
+    case 33:
+    case 34:    
       sprintf ( b->tables->b.path,"%sBUFR_%d_0_0_TableB_en.csv", aux, b->sec1.master_version );
       sprintf ( b->tables->c.path,"%sBUFR_%d_0_0_TableC_en.csv", aux, b->sec1.master_version );
       sprintf ( b->tables->d.path,"%sBUFR_%d_0_0_TableD_en.csv", aux, b->sec1.master_version );
       break;
     default:
-      sprintf ( b->tables->b.path,"%sBUFR_27_0_0_TableB_en.csv", aux );
-      sprintf ( b->tables->c.path,"%sBUFR_27_0_0_TableC_en.csv", aux );
-      sprintf ( b->tables->d.path,"%sBUFR_26_0_0_TableD_en.csv", aux );
+      sprintf ( b->tables->b.path,"%sBUFR_34_0_0_TableB_en.csv", aux );
+      sprintf ( b->tables->c.path,"%sBUFR_34_0_0_TableC_en.csv", aux );
+      sprintf ( b->tables->d.path,"%sBUFR_34_0_0_TableD_en.csv", aux );
       break;
     }
   return 0;

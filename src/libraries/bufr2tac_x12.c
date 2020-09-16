@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2013-2017 by Guillermo Ballester Valor                  *
+ *   Copyright (C) 2013-2019 by Guillermo Ballester Valor                  *
  *   gbv@ogimet.com                                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -44,7 +44,11 @@ char * kelvin_to_snTTT ( char *target, double T )
     }
 
   // tenths of degree (Celsius)
-  ic = ( int ) ( floor ( 10.0 * ( Tx - 273.15 ) + 0.5 ) );
+  // Patch introduced on 22-Dec-2019 due to some roundings errors from India and Australia
+  // not converting properly from Kelvin to Celsius for Tmax and Tmin
+  // Changed '0.5' to '0.45'
+  //ic = ( int ) ( floor ( 10.0 * ( Tx - 273.15 ) + 0.5 ) );
+  ic = ( int ) ( floor ( 10.0 * ( Tx - 273.15 ) + 0.45 ) );
   if ( ic < 0 )
     {
       sprintf ( target, "1%03d",  -ic );
@@ -511,7 +515,7 @@ int climat_parse_x12 ( struct climat_chunks *c, struct bufr2tac_subset_state *s 
                     }
                   else
                     {
-                      sprintf ( c->s4.yax, "%02d", s->day + 50 );
+                      sprintf ( c->s4.yax, "%02d", (s->day + 50) % 100 );
                     }
                   c->mask |= CLIMAT_SEC4;
                 }
@@ -529,7 +533,7 @@ int climat_parse_x12 ( struct climat_chunks *c, struct bufr2tac_subset_state *s 
                     }
                   else
                     {
-                      sprintf ( c->s4.yan, "%02d", s->day + 50 );
+                      sprintf ( c->s4.yan, "%02d", (s->day + 50) % 100 );
                     }
                   c->mask |= CLIMAT_SEC4;
                 }
@@ -632,7 +636,7 @@ int climat_parse_x12 ( struct climat_chunks *c, struct bufr2tac_subset_state *s 
             }
           else
             {
-              sprintf ( c->s4.yx, "%02d", s->day + 50 );
+              sprintf ( c->s4.yx, "%02d", (s->day + 50) % 100 );
             }
           c->mask |= CLIMAT_SEC4;
         }
@@ -652,7 +656,7 @@ int climat_parse_x12 ( struct climat_chunks *c, struct bufr2tac_subset_state *s 
             }
           else
             {
-              sprintf ( c->s4.yn, "%02d", s->day + 50 );
+              sprintf ( c->s4.yn, "%02d", (s->day + 50) % 100 );
             }
           c->mask |= CLIMAT_SEC4;
         }

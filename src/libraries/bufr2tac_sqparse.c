@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2013-2017 by Guillermo Ballester Valor                  *
+ *   Copyright (C) 2013-2018 by Guillermo Ballester Valor                  *
  *   gbv@ogimet.com                                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -93,6 +93,7 @@ int parse_subset_sequence ( struct metreport *m, struct bufr_subset_sequence_dat
         }
       else if ( find_descriptor_interval ( kdtlst, nlst, 307079, 307086 ) ||
                 find_descriptor ( kdtlst, nlst,307091 ) ||
+                find_descriptor ( kdtlst, nlst,307092 ) ||
                 find_descriptor ( kdtlst, nlst,307096 ) ||
                 ksec1[6] == 0 || ksec1[6] == 1 || ksec1[6] == 2 )
         {

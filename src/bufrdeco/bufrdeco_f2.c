@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2013-2017 by Guillermo Ballester Valor                  *
+ *   Copyright (C) 2013-2018 by Guillermo Ballester Valor                  *
  *   gbv@ogimet.com                                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -173,12 +173,128 @@ int bufrdeco_parse_f2_descriptor ( struct bufrdeco_subset_sequence_data *s, stru
       break;
 
     case 22:
+      // Quality information follows
+      // The values of Class 33 elements which follow relate to
+      // the data defined by the data present bit-map.
+      //
+      // Here we jsut activate the quality_active flag
+      b->state.quality_active = 1;
+      b->state.subs_active = 0;
+      b->state.retained_active = 0;
+      b->state.stat1_active = 0;
+      b->state.dstat_active = 0;
+      break;
+
+    case 23:
+      if ( d->y == 0 )
+        {
+          // Substituted operator values
+          //
+          // The substituted values which follow relate to the data
+          // defined by the data present bit-map.
+          b->state.quality_active = 0;
+          b->state.subs_active = 1;
+          b->state.retained_active = 0;
+          b->state.stat1_active = 0;
+          b->state.dstat_active = 0;
+        }
+      break;
+
+    case 24:
+      if ( d->y == 0 )
+        {
+          // First-order statistical values follow
+          //
+          // The statistical values which follow relate to the data
+          // defined by the data present bit-map.
+          b->state.quality_active = 0;
+          b->state.subs_active = 0;
+          b->state.retained_active = 0;
+          b->state.stat1_active = 1;
+          b->state.dstat_active = 0;
+        }
+      break;
+
+    case 25:
+      if ( d->y == 0 )
+        {
+          // Difference statistical values follow
+          //
+          // The statistical values which follow relate to the data
+          // defined by the data present bit-map.
+          b->state.quality_active = 0;
+          b->state.subs_active = 0;
+          b->state.retained_active = 0;
+          b->state.stat1_active = 0;
+          b->state.dstat_active = 1;
+        }
+      break;
+
+    case 32:
+      if ( d->y == 0 )
+        {
+          // Replaced/retained values follow
+          //
+          // The replaced/retained values which follow relate to the
+          // data defined by the data present bit-map.
+          b->state.quality_active = 0;
+          b->state.subs_active = 0;
+          b->state.retained_active = 1;
+          b->state.stat1_active = 0;
+          b->state.dstat_active = 0;
+        }
+      break;
+      
+    case 35:
+      // Cancel backward data reference
+      //
+      // This operator terminates all previously defined backward
+      // reference and cancels any previously defined
+      // data present bit-map; it causes the next data present
+      // bit-map to refer to the data descriptors which
+      // immediately precede the operator to which it relates.
+
+      // Set the bitmap pointer to NULL.
+      b->state.bitmap = NULL;
       break;
 
     case 36:
+      // Define data present bit-map
+      //
+      // This operator defines the data present bit-map which
+      // follows for possible re-use; only one data present
+      // bit-map may be defined between this operator and the
+      // cancel use defined data present bit-map operator.
+
+      // Here we just add a bufrdeco_bitmap struct set the current bitmap
+      if ( bufrdeco_allocate_bitmap ( b ) )
+        {
+          // Cannot allocate another bitmap
+          return 1;
+        }
+      // Set the new current bitmap
+      b->state.bitmap = b->bitmap.bmap[b->bitmap.nba - 1];
+
+      // Now set the bitmaping backward count to 1 to flag that next replicator descriptor must be set it properly
+      b->state.bitmaping = 1;
+
       break;
 
     case 37:
+      //  if y = 0000 use defined data present bit-map
+      //  This operator causes the defined data present bit-map to be used again.
+      //
+      //  if y = 255  Cancel use defined data present bit-map
+      // This operator cancels the re-use of the defined data present bit-map.
+      if ( d->y == 0 )
+        {
+          if ( b->bitmap.nba && b->state.bitmap == NULL )
+            b->state.bitmap =  b->bitmap.bmap[b->bitmap.nba - 1];
+        }
+      else if ( d->y == 255 )
+        {
+          b->state.bitmap = NULL;
+        }
       break;
 
     default:
@@ -320,7 +436,7 @@ int bufrdeco_parse_f2_compressed ( struct bufrdeco_compressed_data_references *r
             b->state.factor_reference = pow10pos_int[d->y];
           else
             {
-              sprintf ( b->error, "bufrdeco_parse_f2_descriptor(): Too much %u increase bits for operator '%s'", d->y,
+              sprintf ( b->error, "bufrdeco_parse_f2_compressed(): Too much %u increase bits for operator '%s'", d->y,
                         d->c );
               return 1;
             }
@@ -343,16 +459,133 @@ int bufrdeco_parse_f2_compressed ( struct bufrdeco_compressed_data_references *r
       break;
 
     case 22:
+      // Quality information follows
+      // The values of Class 33 elements which follow relate to
+      // the data defined by the data present bit-map.
+      //
+      // Here we jsut activate the quality_active flag
+      b->state.quality_active = 1;
+      b->state.subs_active = 0;
+      b->state.retained_active = 0;
+      b->state.stat1_active = 0;
+      b->state.dstat_active = 0;
+      break;
+
+    case 23:
+      if ( d->y == 0 )
+        {
+          // Substituted operator values
+          //
+          // The substituted values which follow relate to the data
+          // defined by the data present bit-map.
+          b->state.quality_active = 0;
+          b->state.subs_active = 1;
+          b->state.retained_active = 0;
+          b->state.stat1_active = 0;
+          b->state.dstat_active = 0;
+        }
+      break;
+
+    case 24:
+      if ( d->y == 0 )
+        {
+          // First-order statistical values follow
+          //
+          // The statistical values which follow relate to the data
+          // defined by the data present bit-map.
+          b->state.quality_active = 0;
+          b->state.subs_active = 0;
+          b->state.retained_active = 0;
+          b->state.stat1_active = 1;
+          b->state.dstat_active = 0;
+        }
+      break;
+
+    case 25:
+      if ( d->y == 0 )
+        {
+          // Difference statistical values follow
+          //
+          // The statistical values which follow relate to the data
+          // defined by the data present bit-map.
+          b->state.quality_active = 0;
+          b->state.subs_active = 0;
+          b->state.retained_active = 0;
+          b->state.stat1_active = 0;
+          b->state.dstat_active = 1;
+        }
+      break;
+
+    case 32:
+      if ( d->y == 0 )
+        {
+          // Replaced/retained values follow
+          //
+          // The replaced/retained values which follow relate to the
+          // data defined by the data present bit-map.
+          b->state.quality_active = 0;
+          b->state.subs_active = 0;
+          b->state.retained_active = 1;
+          b->state.stat1_active = 0;
+          b->state.dstat_active = 0;
+        }
+      break;
+      
+      
+    case 35:
+      // Cancel backward data reference
+      //
+      // This operator terminates all previously defined backward
+      // reference and cancels any previously defined
+      // data present bit-map; it causes the next data present
+      // bit-map to refer to the data descriptors which
+      // immediately precede the operator to which it relates.
+
+      // Set the bitmap pointer to NULL.
+      b->state.bitmap = NULL;
       break;
 
     case 36:
+      // Define data present bit-map
+      //
+      // This operator defines the data present bit-map which
+      // follows for possible re-use; only one data present
+      // bit-map may be defined between this operator and the
+      // cancel use defined data present bit-map operator.
+
+      // Here we just add a bufrdeco_bitmap struct set the current bitmap
+      if ( bufrdeco_allocate_bitmap ( b ) )
+        {
+          // Cannot allocate another bitmap
+          return 1;
+        }
+      // Set the new current bitmap
+      b->state.bitmap = b->bitmap.bmap[b->bitmap.nba - 1];
+
+      // Now set the bitmaping backward count to 1 to flag that next replicator descriptor must be set it properly
+      b->state.bitmaping = 1;
+
       break;
 
     case 37:
+      //  if y = 0000 use defined data present bit-map
+      //  This operator causes the defined data present bit-map to be used again.
+      //
+      //  if y = 255  Cancel use defined data present bit-map
+      // This operator cancels the re-use of the defined data present bit-map.
+      if ( d->y == 0 )
+        {
+          if ( b->bitmap.nba && b->state.bitmap == NULL )
+            b->state.bitmap =  b->bitmap.bmap[b->bitmap.nba - 1];
+        }
+      else if ( d->y == 255 )
+        {
+          b->state.bitmap = NULL;
+        }
       break;
 
     default:
-      sprintf ( b->error, "bufrdeco_parse_f2_descriptor(): Still no proccessed descriptor '%s' in "
+      sprintf ( b->error, "bufrdeco_parse_f2_compressed(): Still no proccessed descriptor '%s' in "
                 "current library version\n", d->c );
       return 1;
     }
