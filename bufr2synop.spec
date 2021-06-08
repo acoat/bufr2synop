@@ -1,6 +1,6 @@
 Name:		bufr2synop
 Version:	0.13.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Decode and get meteorological reports in Traditional Alphanumeric Code format from binary BUFR.
 
 
