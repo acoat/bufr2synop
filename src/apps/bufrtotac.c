@@ -238,7 +238,7 @@ int main ( int argc, char *argv[] )
               else if ( CSV )
                 {
                   if ( subset == 0 )
-                    fprintf ( stdout, "TYPE,FILE,DATETIME,INDEX,NAME,COUNTRY,LATITUDE,LONGITUDE,ALTITUDE,REPORT\n" );
+                    fprintf ( stdout, "TYPE,FILE,GTSINFO,DATETIME,INDEX,NAME,COUNTRY,LATITUDE,LONGITUDE,ALTITUDE,REPORT\n" );
                   print_csv ( stdout, &REPORT );
                 }
               else if ( HTML )
